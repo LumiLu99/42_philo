@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "include/philo.h"
+#include "../include/philo.h"
 
 void	error_exit(const char *str)
 {
