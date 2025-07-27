@@ -12,18 +12,19 @@
 
 #include "../include/philo.h"
 
-static void	check_input(t_data *data, char **argv)
+int	check_input(t_data *data, char **argv)
 {
 	int		i;
 	long	num;
 
 	i = 0;
-	while (argv[++i] != NULL)
+	while (argv[++i])
 	{
-		ft_isnum(argv[i]);
+		if (!ft_isnum(argv[i]))
+			return (0);
 		num = ft_atol(argv[i]);
 		if (num > INT_MAX || num < INT_MIN)
-			error_exit("Please input numbers less than INT_MAX\n");
+			return (error_exit("Please input numbers less than INT_MAX"), 0);
 	}
 	memset(data, 0, (sizeof(t_data)));
 	data->number_of_philos = ft_atol(argv[1]);
@@ -34,6 +35,7 @@ static void	check_input(t_data *data, char **argv)
 		data->num_meals_needed = ft_atol(argv[5]);
 	else
 		data->num_meals_needed = -1;
+	return (1);
 }
 
 static void *routine(void *arg)
@@ -62,31 +64,44 @@ static void	create_threads(t_data *data)
 	}
 }
 
-static void	init_philo(t_data *data, char **argv)
+void	init_forks(t_data *data)
 {
-	data->number_of_philos = ft_atol(argv[1]);
+	int	i;
+
+	i = 0;
+	data->forks = malloc((sizeof(pthread_mutex_t)*(data->number_of_philos)));
+	if (!data->forks)
+		asdfasdfasdf;
+	while (i < data->number_of_philos)
+	{
+		pthread_mutex_init(&data->forks[i], NULL);
+		i++;
+	}
+}
+
+static void	init_philo(t_data *data)
+{
 	data->philos = malloc(sizeof(t_philo) * data->number_of_philos);
 	if (!data->philos)
 		error_exit("Malloc failed\n");
+	init_forks(data);
 	create_threads(data);
 }
 
 int	main(int argc, char **argv)
 {
 	t_data data;
-	t_philo	philos[200];
 
-	data.philos = philos;
 	if (argc == 5 || argc == 6)
 	{
-		check_input(&data, argv);
-		init_philo(&data, argv);
+		if (!check_input(&data, argv))
+			return (1);
+		init_philo(&data);
 		// start_philo(&philo);
 		free(data.philos);
 	}
 	else
-		error_exit("Wrong argument\n");
-	return (0);
+		return(error_exit(INV_ARG), 1);
 }
 
 // ./philo 5 800 200 200 [5]

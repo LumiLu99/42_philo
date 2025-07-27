@@ -24,6 +24,10 @@
 
 # define RESET	"\033[0m"
 # define RED	"\033[1;31m"
+# define INV_ARG "Error: Wrong argument. Please enter only 5 or 6 arguments.\n \
+./philo <number_of_philosophers> <time_to_die> <time_to_eat> <time_to_sleep>\n \
+[OPTIONAL: <number_of_times_a_philo_must_eat_before_terminating>]\n \
+Usage: ./philo 5 800 200 200 [5]"
 
 typedef struct s_philo
 {
@@ -36,20 +40,21 @@ typedef struct s_philo
 
 typedef struct s_data
 {
-	long			number_of_philos;
+	long		number_of_philos;
 	int			num_meals_needed;
-	long			time_to_die;
-	long			time_to_eat;
-	long			time_to_sleep;
+	long		time_to_die;
+	long		time_to_eat;
+	long		time_to_sleep;
 	int			start_time;
 	bool		someone_died;
 	t_philo		*philos;
+	pthread_mutex_t	*forks;
 } t_data;
-
 
 // Utils
 void	error_exit(const char *str);
 long	ft_atol(const char *str);
-void	ft_isnum(char *argv);
+int		ft_isnum(char *argv);
+int		check_input(t_data *data, char **argv);
 
 #endif

@@ -12,10 +12,10 @@
 
 #include "../include/philo.h"
 
-void	error_exit(const char *str)
+void	error_exit(const char *str, int len)
 {
-	printf(RED"%s\n"RESET, str);
-	exit(EXIT_FAILURE);
+	write(2, &str, len);
+	write(2, "\n", 2);
 }
 
 long	ft_atol(const char *str)
@@ -43,7 +43,7 @@ long	ft_atol(const char *str)
 	return (sum * sign);
 }
 
-void	ft_isnum(char *argv)
+int	ft_isnum(char *argv)
 {
 	int	i;
 
@@ -51,10 +51,20 @@ void	ft_isnum(char *argv)
 	while (argv[i])
 	{
 		if (argv[i] == '-' || argv[i] == '+')
-			error_exit("Please enter numbers without signs\n");
+			return (error_exit("Please enter numbers without plus or minus signs", 49), 0);
 		else if (argv[i] < '0' || argv[i] > '9')
-			error_exit("Please enter numbers only\n");
+			return (error_exit("Please enter numbers only", 26), 0);
 		else
 			i++;
 	}
+	return (1);
+}
+
+size_t	get_current_time(void)
+{
+	struct timeval	time;
+
+	if (gettimeofday(&time, NULL) == -1)
+		write(2, "gettimeofday() error\n", 22);
+	return (time.tv_sec * 1000 + time.tv_usec / 1000);
 }
