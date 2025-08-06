@@ -35,26 +35,30 @@ typedef struct s_philo
 	int				id;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
-	long			last_meal_time; // time passed from last meal
+	int			last_meal_time; // time passed from last meal
 } t_philo;
 
 typedef struct s_data
 {
-	long		number_of_philos;
+	int		number_of_philos;
 	int			num_meals_needed;
-	long		time_to_die;
-	long		time_to_eat;
-	long		time_to_sleep;
+	int		time_to_die;
+	int		time_to_eat;
+	int		time_to_sleep;
 	int			start_time;
 	bool		someone_died;
 	t_philo		*philos;
 	pthread_mutex_t	*forks;
+	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	eat_mutex;
+	pthread_mutex_t dead_mutex;
 } t_data;
 
 // Utils
 void	error_exit(const char *str);
-long	ft_atol(const char *str);
+int		check_valid_int(const char *str);
 int		ft_isnum(char *argv);
 int		check_input(t_data *data, char **argv);
+int		ft_atoi(const char *str);
 
 #endif
