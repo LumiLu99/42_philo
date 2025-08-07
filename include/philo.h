@@ -35,7 +35,7 @@ typedef struct s_philo
 	int				id;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
-	int			last_meal_time; // time passed from last meal
+	time_t			last_meal_time;
 } t_philo;
 
 typedef struct s_data
@@ -52,13 +52,15 @@ typedef struct s_data
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	eat_mutex;
 	pthread_mutex_t dead_mutex;
+	pthread_t	waiter;
 } t_data;
 
 // Utils
-void	error_exit(const char *str);
+void	error_exit(const char *str, int len);
 int		check_valid_int(const char *str);
 int		ft_isnum(char *argv);
 int		check_input(t_data *data, char **argv);
 int		ft_atoi(const char *str);
+time_t	get_current_time(void);
 
 #endif

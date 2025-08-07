@@ -62,7 +62,7 @@ int	ft_isnum(char *argv)
 	return (1);
 }
 
-size_t	get_current_time(void)
+time_t	get_current_time(void)
 {
 	struct timeval	time;
 
