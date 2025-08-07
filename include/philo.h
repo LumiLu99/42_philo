@@ -52,7 +52,7 @@ typedef struct s_data
 } t_data;
 
 // Utils
-void	error_exit(const char *str);
+void	error_exit(const char *str, int len);
 long	ft_atol(const char *str);
 int		ft_isnum(char *argv);
 int		check_input(t_data *data, char **argv);

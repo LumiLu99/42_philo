@@ -64,27 +64,36 @@ static void	create_threads(t_data *data)
 	}
 }
 
-void	init_forks(t_data *data)
+int	init_forks(t_data *data)
 {
 	int	i;
 
 	i = 0;
 	data->forks = malloc((sizeof(pthread_mutex_t)*(data->number_of_philos)));
 	if (!data->forks)
-		asdfasdfasdf;
+	{
+		error_exit("Fork malloc failed", 19);
+		return (0);
+	}
 	while (i < data->number_of_philos)
 	{
-		pthread_mutex_init(&data->forks[i], NULL);
+		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
+		{
+			error_exit("Fork initialization failed", 27);
+			return (0);
+		}
 		i++;
 	}
+	return (1);
 }
 
-static void	init_philo(t_data *data)
+static int	init_philo(t_data *data)
 {
 	data->philos = malloc(sizeof(t_philo) * data->number_of_philos);
 	if (!data->philos)
-		error_exit("Malloc failed\n");
-	init_forks(data);
+		error_exit("Malloc failed", 14);
+	if (!init_forks(data));
+		return (0);
 	create_threads(data);
 }
 
@@ -96,12 +105,13 @@ int	main(int argc, char **argv)
 	{
 		if (!check_input(&data, argv))
 			return (1);
-		init_philo(&data);
+		if (!init_philo(&data));
+			return (1);
 		// start_philo(&philo);
 		free(data.philos);
 	}
 	else
-		return(error_exit(INV_ARG), 1);
+		error_exit((INV_ARG), 238);
 }
 
 // ./philo 5 800 200 200 [5]
