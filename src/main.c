@@ -38,14 +38,68 @@ int	check_input(t_data *data, char **argv)
 
 static void *routine(void *arg)
 {
+	t_philo	*philo;
 	t_data	*data;
+	int		i;
 
-	data = (t_data *)arg;
+	i = 0;
+	philo = (t_philo *)arg;
+	data = philo->data;
+	printf("I am philo[%d]\n", philo->id);
 	while (1)
 	{
 		if (data->number_of_philos == 1)
+		{
+			usleep(data->time_to_die);
+			printf("died\n");
+			break ;
+		}
+		else if (philo->id % 2 == 0)
+		{
+			usleep(1000);
+			printf("I'm in even philo[%d]\n", philo->id);
+		
+			pthread_mutex_lock(philo->left_fork);
 			
+			pthread_mutex_lock(&data->print_mutex);
+			printf("Even Philo[%d] has taken left fork\n", philo->id);
+			pthread_mutex_unlock(&data->print_mutex);
+			
+			pthread_mutex_lock(philo->right_fork);
+			printf("Even Philo[%d] got right fork\n", philo->id);
+			
+			pthread_mutex_lock(&data->print_mutex);
+			printf("Even Philo[%d] has taken right fork\n", philo->id);
+			pthread_mutex_unlock(&data->print_mutex);
+			
+			pthread_mutex_unlock(philo->right_fork);
+			printf("Odd Philo [%d] has put down right fork\n", philo->id);
+			pthread_mutex_unlock(philo->left_fork);
+			printf("Odd Philo [%d] has put down left fork\n", philo->id);
+			usleep(1000);
+		}
+		else
+		{
+			printf("I'm in odd philo[%d]\n", philo->id);
+			
+			pthread_mutex_lock(philo->left_fork);
+			pthread_mutex_lock(&data->print_mutex);
+			printf("Odd Philo [%d] has taken left fork\n", philo->id);
+			pthread_mutex_unlock(&data->print_mutex);
+			
+			pthread_mutex_lock(philo->right_fork);
+			pthread_mutex_lock(&data->print_mutex);
+			printf("Odd Philo [%d] has taken right fork\n", philo->id);
+			pthread_mutex_unlock(&data->print_mutex);
+			
+			pthread_mutex_unlock(philo->right_fork);
+			printf("Odd Philo [%d] has put down right fork\n", philo->id);
+			pthread_mutex_unlock(philo->left_fork);
+			printf("Odd Philo [%d] has put down left fork\n", philo->id);
+			usleep(1000);
+		}
 	}
+	return ((void *)0);
 }
 
 int	init_forks(t_data *data)
@@ -59,7 +113,7 @@ int	init_forks(t_data *data)
 		return (error_exit("Malloc fork failed\n", 20), 0);
 	while (i < data->number_of_philos)
 	{
-		if (pthread_mutex_init(&data->forks[i], NULL) != 0);
+		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
 		{
 			j = 0;
 			while (j < i)
@@ -81,6 +135,7 @@ static int	init_mutexes(t_data *data)
 	pthread_mutex_init(&data->print_mutex, NULL);
   	pthread_mutex_init(&data->eat_mutex, NULL);
   	pthread_mutex_init(&data->dead_mutex, NULL);
+	return (1);
 }
 
 static int	init_data(t_data *data)
@@ -97,7 +152,7 @@ static int	init_data(t_data *data)
 	return (1);
 }
 
-static int	init_philo_struct(t_data *data)
+int	init_philo_struct(t_data *data)
 {
 	int	i;
 	time_t	start_time;
@@ -109,9 +164,13 @@ static int	init_philo_struct(t_data *data)
 		data->philos[i].id = i + 1;
 		data->philos[i].left_fork = &data->forks[i];
 		data->philos[i].right_fork = (&data->forks[i % data->number_of_philos]);
-		pthread_create(&data->philos[i].threads, NULL, &routine, &data->philos[i].id);
+		data->philos[i].data = data;
+		data->philos[i].meals_eaten = 0;
+		if (pthread_create(&data->philos[i].threads, NULL, &routine, &data->philos[i]) != 0)
+			return (error_exit("Philo creation failed\n", 23), 0);
 		i++;
 	}
+	return (1);
 }
 
 static int	philo_join(t_data *data)
@@ -121,18 +180,20 @@ static int	philo_join(t_data *data)
 	i = 0;
 	while (i < data->number_of_philos)
 	{
-		if (pthread_join(data->philos[i].threads, NULL) != 0);
+		if (pthread_join(data->philos[i].threads, NULL) != 0)
 			return (error_exit("Failed to join threads\n", 24), 0);
 		i++;
 	}
-	pthread_join(data->waiter, NULL);
+	// pthread_join(data->waiter, NULL);
 	return (0);
 }
 
 int	main(int argc, char **argv)
 {
 	t_data data;
+	int	i;
 
+	i = 0;
 	if (argc == 5 || argc == 6)
 	{
 		if (!check_input(&data, argv))
@@ -142,7 +203,11 @@ int	main(int argc, char **argv)
 		// start_philo(&philo);
 		if (!philo_join(&data))
 			return (1);
-		free(data.philos);
+		pthread_mutex_destroy(&data.print_mutex);
+		pthread_mutex_destroy(&data.dead_mutex);
+		pthread_mutex_destroy(&data.eat_mutex);
+		clean_up(&data);
+		// free(data.philos);
 	}
 	else
 		error_exit(INV_ARG, 238);

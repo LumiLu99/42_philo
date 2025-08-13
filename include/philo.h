@@ -29,6 +29,9 @@
 [OPTIONAL: <number_of_times_a_philo_must_eat_before_terminating>]\n \
 Usage: ./philo 5 800 200 200 [5]"
 
+typedef struct s_data	t_data;
+typedef struct s_philo	t_philo;
+
 typedef struct s_philo
 {
 	pthread_t		threads;
@@ -36,6 +39,8 @@ typedef struct s_philo
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
 	time_t			last_meal_time;
+	int				meals_eaten;
+	t_data			*data;
 } t_philo;
 
 typedef struct s_data
@@ -62,5 +67,7 @@ int		ft_isnum(char *argv);
 int		check_input(t_data *data, char **argv);
 int		ft_atoi(const char *str);
 time_t	get_current_time(void);
+int		init_philo_struct(t_data *data);
+void	clean_up(t_data *data);
 
 #endif
