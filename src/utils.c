@@ -101,6 +101,7 @@ void	clean_up(t_data *data)
 	int	i;
 
 	i = 0;
+
 	if (data->forks)
 	{
 		while (i < data->number_of_philos)
@@ -111,5 +112,7 @@ void	clean_up(t_data *data)
 		free(data->forks);
 		data->forks = NULL;
 	}
-	
+	pthread_mutex_destroy(&data->print_mutex);
+	pthread_mutex_destroy(&data->dead_mutex);
+	pthread_mutex_destroy(&data->eat_mutex);
 }

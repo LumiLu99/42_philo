@@ -46,58 +46,20 @@ static void *routine(void *arg)
 	philo = (t_philo *)arg;
 	data = philo->data;
 	printf("I am philo[%d]\n", philo->id);
-	while (1)
+	if (philo->id % 2 == 0)
+		usleep(100);
+	while (!(someone_died(philo)))
 	{
 		if (data->number_of_philos == 1)
 		{
 			usleep(data->time_to_die);
-			printf("died\n");
+			printf("He freaking died\n");
 			break ;
 		}
-		else if (philo->id % 2 == 0)
-		{
-			usleep(1000);
-			printf("I'm in even philo[%d]\n", philo->id);
-		
-			pthread_mutex_lock(philo->left_fork);
-			
-			pthread_mutex_lock(&data->print_mutex);
-			printf("Even Philo[%d] has taken left fork\n", philo->id);
-			pthread_mutex_unlock(&data->print_mutex);
-			
-			pthread_mutex_lock(philo->right_fork);
-			printf("Even Philo[%d] got right fork\n", philo->id);
-			
-			pthread_mutex_lock(&data->print_mutex);
-			printf("Even Philo[%d] has taken right fork\n", philo->id);
-			pthread_mutex_unlock(&data->print_mutex);
-			
-			pthread_mutex_unlock(philo->right_fork);
-			printf("Odd Philo [%d] has put down right fork\n", philo->id);
-			pthread_mutex_unlock(philo->left_fork);
-			printf("Odd Philo [%d] has put down left fork\n", philo->id);
-			usleep(1000);
-		}
-		else
-		{
-			printf("I'm in odd philo[%d]\n", philo->id);
-			
-			pthread_mutex_lock(philo->left_fork);
-			pthread_mutex_lock(&data->print_mutex);
-			printf("Odd Philo [%d] has taken left fork\n", philo->id);
-			pthread_mutex_unlock(&data->print_mutex);
-			
-			pthread_mutex_lock(philo->right_fork);
-			pthread_mutex_lock(&data->print_mutex);
-			printf("Odd Philo [%d] has taken right fork\n", philo->id);
-			pthread_mutex_unlock(&data->print_mutex);
-			
-			pthread_mutex_unlock(philo->right_fork);
-			printf("Odd Philo [%d] has put down right fork\n", philo->id);
-			pthread_mutex_unlock(philo->left_fork);
-			printf("Odd Philo [%d] has put down left fork\n", philo->id);
-			usleep(1000);
-		}
+		else if (philo_is_full(philo))
+			break ;
+		philo_sleep(philo);
+		philo_think(philo);
 	}
 	return ((void *)0);
 }
@@ -203,14 +165,11 @@ int	main(int argc, char **argv)
 		// start_philo(&philo);
 		if (!philo_join(&data))
 			return (1);
-		pthread_mutex_destroy(&data.print_mutex);
-		pthread_mutex_destroy(&data.dead_mutex);
-		pthread_mutex_destroy(&data.eat_mutex);
 		clean_up(&data);
 		// free(data.philos);
 	}
 	else
-		error_exit(INV_ARG, 238);
+		return (error_exit(INV_ARG, 238), 1);
 }
 
 // ./philo 5 800 200 200 [5]
