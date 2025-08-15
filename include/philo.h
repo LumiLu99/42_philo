@@ -68,5 +68,6 @@ int		ft_atoi(const char *str);
 time_t	get_current_time(void);
 int		init_philo_struct(t_data *data);
 void	clean_up(t_data *data);
+void	ft_usleep(int ms, t_data *data);
 
 #endif

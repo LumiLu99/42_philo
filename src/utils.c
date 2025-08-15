@@ -116,3 +116,16 @@ void	clean_up(t_data *data)
 	pthread_mutex_destroy(&data->dead_mutex);
 	pthread_mutex_destroy(&data->eat_mutex);
 }
+
+void	ft_usleep(int ms, t_data *data)
+{
+	long long	start_time;
+
+	start_time = get_current_time();
+	while (get_current_time() - start_time < ms)
+	{
+		// if (someone_died(data))
+			// break ;
+		usleep(200);
+	}
+}
