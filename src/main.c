@@ -38,14 +38,39 @@ int	check_input(t_data *data, char **argv)
 
 static void *routine(void *arg)
 {
-	t_data	*data;
+	t_philo	*philo;
+	pthread_t	waiter;
 
-	data = (t_data *)arg;
-	while (1)
+	philo = (t_philo *)arg;
+	// if (pthread_create(&waiter, NULL, &check_death, &philos) != 0)
+	// 	return (error_exit("Waiter creation failed\n", 24), (void *)0);
+	if (philo->id % 2 == 0)
+		usleep(1000);
+	while (!philo_died())
 	{
 		if (data->number_of_philos == 1)
-			
+		{
+			usleep(data->time_to_die);
+			break ;
+		}
+		is_eating(philo);
+		// is_sleeping;
+		// is_think;
 	}
+}
+
+void	is_eating(t_philo *philo)
+{
+	if (philo->id % 2 == 0)
+	{
+		pthread_mutex_lock
+
+	}
+}
+
+void	is_thinking(t_philo *philo)
+{
+	write(1, "is thinking", 12);
 }
 
 int	init_forks(t_data *data)
@@ -86,7 +111,7 @@ static int	init_mutexes(t_data *data)
 static int	init_data(t_data *data)
 {
 	data->philos = malloc(sizeof(t_philo) * data->number_of_philos);
-	if (!data->philos)
+	if (!(data->philos))
 		return (error_exit("Philos creation failed\n", 24), 0);
 	if (!init_forks(data))
 		return (error_exit("Forks creation failed\n", 23), 0);
@@ -103,30 +128,36 @@ static int	init_philo_struct(t_data *data)
 	time_t	start_time;
 
 	i = 0;
-	start_time = get_current_time() ;
 	while (i < data->number_of_philos)
 	{
 		data->philos[i].id = i + 1;
 		data->philos[i].left_fork = &data->forks[i];
 		data->philos[i].right_fork = (&data->forks[i % data->number_of_philos]);
-		pthread_create(&data->philos[i].threads, NULL, &routine, &data->philos[i].id);
 		i++;
 	}
 }
 
-static int	philo_join(t_data *data)
+static int	start_philo(t_data *data)
 {
 	int	i;
 
 	i = 0;
+	data->start_time = get_current_time();
+	while (i < data->number_of_philos)
+	{
+		data->philos[i].last_meal_time = data->start_time;
+		if (pthread_create(&data->philos[i].threads, NULL, &routine, &data->philos[i]) != 0)
+			return (error_exit("Philos creation failed\n", 24), -1);
+		i++;
+	}
+	i = 0;
 	while (i < data->number_of_philos)
 	{
 		if (pthread_join(data->philos[i].threads, NULL) != 0);
-			return (error_exit("Failed to join threads\n", 24), 0);
+			return (error_exit("Failed to join philo threads\n", 24), 0);
 		i++;
 	}
-	pthread_join(data->waiter, NULL);
-	return (0);
+	return (1);
 }
 
 int	main(int argc, char **argv)
@@ -139,8 +170,7 @@ int	main(int argc, char **argv)
 			return (1);
 		if (!init_data(&data))
 			return (1);
-		// start_philo(&philo);
-		if (!philo_join(&data))
+		if (!start_philo(&data))
 			return (1);
 		free(data.philos);
 	}

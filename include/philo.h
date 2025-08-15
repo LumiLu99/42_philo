@@ -52,7 +52,6 @@ typedef struct s_data
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	eat_mutex;
 	pthread_mutex_t dead_mutex;
-	pthread_t	waiter;
 } t_data;
 
 // Utils
