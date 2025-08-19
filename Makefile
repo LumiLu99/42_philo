@@ -30,14 +30,19 @@ INC_DIR = include
 INC = -I$(INC_DIR)
 
 # Compiler & flags
-CC = cc
+CC = clang
 CFLAGS = -Wall -Werror -Wextra -g3
 RM = rm -rf
 
 # Source files
 SRC = $(addprefix $(SRC_DIR)/, \
 		main.c \
-		utils.c)
+		utils.c \
+		death.c \
+		init.c \
+		parsing.c \
+		routine.c \
+		time.c)
 
 # Object files
 OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
