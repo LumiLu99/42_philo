@@ -64,10 +64,12 @@ typedef struct s_data
 	int				time_to_sleep;
 	long long		start_time;
 	bool			stop;
+	pthread_t		waiter;
 	t_philo			*philos;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	dead_mutex;
+	pthread_mutex_t	stop_mutex;
 }	t_data;
 
 // Utils
@@ -78,12 +80,13 @@ int			check_input(t_data *data, char **argv);
 int			ft_atoi(const char *str);
 long long	get_current_time(void);
 int			init_philo_struct(t_data *data);
-void		success_clean_up(t_data *data);
+void		clean_up(t_data *data);
 void		ft_usleep(int ms, t_data *data);
 void		*routine(void *arg);
 int			init_data(t_data *data);
 int			someone_died(t_philo *philo);
-void		print_status(t_philo *p, t_status status);
+int		print_status(t_philo *p, t_status status);
 void		destroy_forks_philos(t_data *data);
+void	*check_death(void *arg);
 
 #endif

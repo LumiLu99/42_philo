@@ -18,7 +18,7 @@ void	error_exit(const char *str, int len)
 	write(2, "\n", 1);
 }
 
-void	success_clean_up(t_data *data)
+void	clean_up(t_data *data)
 {
 	int	i;
 
@@ -42,13 +42,13 @@ void	success_clean_up(t_data *data)
 	printf("I finished clean up\n");
 }
 
-void	print_status(t_philo *p, t_status status)
+int	print_status(t_philo *p, t_status status)
 {
 	pthread_mutex_lock(&p->data->dead_mutex);
 	if (p->data->stop)
 	{
 		pthread_mutex_unlock(&p->data->dead_mutex);
-		return ;
+		return (0);
 	}
 	pthread_mutex_unlock(&p->data->dead_mutex);
 	pthread_mutex_lock(&p->data->print_mutex);
@@ -71,6 +71,7 @@ void	print_status(t_philo *p, t_status status)
 		printf("%lld\t%d has taken a fork\n",
 			get_current_time() - p->data->start_time, p->id);
 	pthread_mutex_unlock(&p->data->print_mutex);
+	return (1);
 }
 
 void	destroy_forks_philos(t_data *data)

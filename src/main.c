@@ -25,20 +25,23 @@ static int	start_philo(t_data *data)
 		data->philos[i].last_meal_time = data->start_time;
 		if (pthread_create(&data->philos[i].threads, NULL, &routine, &data->philos[i]) != 0)
 		{
-			error_exit("Philos creation failed\n", 24);
-			pthread_mutex_lock(&data->dead_mutex);
-			data->stop = true;
-			pthread_mutex_unlock(&data->dead_mutex);
 			while (j < i)
 			{
 				pthread_join(data->philos[j].threads, NULL);
 				j++;
 			}
-			return (0);
+			return (error_exit("Philos creation failed\n", 24), 0);
 		}
 		i++;
 	}
 	i = 0;
+	if (data->number_of_philos > 1)
+	{
+		if (pthread_create(&data->waiter, NULL, &check_death, data) != 0)
+			return(error_exit("Waiter creation failed\n", 24), 0);
+		if (pthread_join(data->waiter, NULL) != 0)
+			return(error_exit("Failed to join waiter\n", 23), 0);
+	}
 	while (i < data->number_of_philos)
 	{
 		if (pthread_join(data->philos[i].threads, NULL) != 0)
@@ -46,6 +49,38 @@ static int	start_philo(t_data *data)
 		i++;
 	}
 	return (1);
+}
+
+void	*check_death(void *arg)
+{
+	t_data	*data;
+	int		i;
+	long long	current_time;
+
+	data = (t_data *)arg;
+	while (1)
+	{
+		i = 0;
+		while (i < data->number_of_philos)
+		{
+			current_time = get_current_time();
+			pthread_mutex_lock(&data->dead_mutex); //Why do I need it here let's think Do I really need it?
+			if (current_time - data->philos[i].last_meal_time > data->time_to_die)
+			{
+				if (!data->stop)
+					data->stop = true;
+				print_status(&data->philos[i], DIED);
+				pthread_mutex_unlock(&data->dead_mutex);
+				break ;
+			}
+			pthread_mutex_unlock(&data->dead_mutex);
+			i++;
+		}
+		if (data->stop)
+			break ;
+		usleep(100);
+	}
+	return (NULL);
 }
 
 int	main(int argc, char **argv)
@@ -58,9 +93,8 @@ int	main(int argc, char **argv)
 			return (1);
 		if (!init_data(&data))
 			return (1);
-		if (!start_philo(&data))
-			return (1);
-		success_clean_up(&data);
+		start_philo(&data);
+		clean_up(&data);
 		// free(data.philos);
 	}
 	else
