@@ -31,7 +31,7 @@ INC = -I$(INC_DIR)
 
 # Compiler & flags
 CC = cc
-CFLAGS = -Wall -Werror -Wextra -g3
+CFLAGS = -Wall -Werror -Wextra -g3 -fsanitize=address
 RM = rm -rf
 
 # Source files

@@ -69,5 +69,6 @@ int		ft_atoi(const char *str);
 time_t	get_current_time(void);
 int		init_philo_struct(t_data *data);
 void	clean_up(t_data *data);
+void	*check_death(void *arg);
 
 #endif

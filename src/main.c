@@ -48,18 +48,71 @@ static void *routine(void *arg)
 	printf("I am philo[%d]\n", philo->id);
 	if (philo->id % 2 == 0)
 		usleep(100);
-	while (!(someone_died(philo)))
+	while (1)
 	{
 		if (data->number_of_philos == 1)
 		{
+			pthread_mutex_lock(&philo[i].left_fork);
 			usleep(data->time_to_die);
+			data->someone_died = true;
+			pthread_mutex_lock(&data->print_mutex);
 			printf("He freaking died\n");
+			pthread_mutex_lock(&data->print_mutex);
+			pthread_mutex_unlock(&philo[i].left_fork);
 			break ;
 		}
-		else if (philo_is_full(philo))
-			break ;
-		philo_sleep(philo);
-		philo_think(philo);
+		else if (philo->id % 2 == 0)
+		{
+			printf("I'm in even philo[%d]\n", philo->id);
+		
+			pthread_mutex_lock(philo->left_fork);
+			
+			pthread_mutex_lock(&data->print_mutex);
+			printf("Even Philo[%d] has taken left fork\n", philo->id);
+			pthread_mutex_unlock(&data->print_mutex);
+			
+			pthread_mutex_lock(philo->right_fork);			
+			pthread_mutex_lock(&data->print_mutex);
+			printf("Even Philo[%d] has taken right fork\n", philo->id);
+			pthread_mutex_unlock(&data->print_mutex);
+			pthread_mutex_lock(&data->print_mutex);
+			printf("Philo[%d] is eating", philo->id);
+			pthread_mutex_unlock(&data->print_mutex);
+			pthread_mutex_lock(&data->eat_mutex);
+			philo->last_meal_time = get_current_time();
+			pthread_mutex_unlock(&data->eat_mutex);
+			usleep(data->time_to_eat);
+			pthread_mutex_unlock(philo->right_fork);
+			printf("Even Philo [%d] has put down right fork\n", philo->id);
+			pthread_mutex_unlock(philo->left_fork);
+			printf("Even Philo [%d] has put down left fork\n", philo->id);
+			usleep(data->time_to_sleep);
+		}
+		else
+		{
+			printf("I'm in odd philo[%d]\n", philo->id);
+			pthread_mutex_lock(philo->left_fork);
+			pthread_mutex_lock(&data->print_mutex);
+			printf("Odd Philo [%d] has taken left fork\n", philo->id);
+			pthread_mutex_unlock(&data->print_mutex);
+			
+			pthread_mutex_lock(philo->right_fork);
+			pthread_mutex_lock(&data->print_mutex);
+			printf("Odd Philo [%d] has taken right fork\n", philo->id);
+			pthread_mutex_unlock(&data->print_mutex);
+			pthread_mutex_lock(&data->print_mutex);
+			printf("Philo[%d] is eating", philo->id);
+			pthread_mutex_unlock(&data->print_mutex);
+			pthread_mutex_lock(&data->eat_mutex);
+			philo->last_meal_time = get_current_time();
+			pthread_mutex_unlock(&data->eat_mutex);
+			usleep(data->time_to_eat);
+			pthread_mutex_unlock(philo->right_fork);
+			printf("Odd Philo [%d] has put down right fork\n", philo->id);
+			pthread_mutex_unlock(philo->left_fork);
+			printf("Odd Philo [%d] has put down left fork\n", philo->id);
+			usleep(data->time_to_sleep);
+		}
 	}
 	return ((void *)0);
 }
@@ -83,8 +136,10 @@ int	init_forks(t_data *data)
 				pthread_mutex_destroy(&data->forks[j]);
 				j++;
 			}
-			free (data->forks);
-			free(data->philos);
+			if (data->forks)
+				free (data->forks);
+			if (data->philos)
+				free (data->philos);
 			return (0);
 		}
 		i++;
@@ -114,6 +169,24 @@ static int	init_data(t_data *data)
 	return (1);
 }
 
+void	*check_death(void *arg)
+{
+	t_data *data;
+
+	data = (t_data *)arg;
+	while (1)
+	{
+		pthread_mutex_lock(&data->dead_mutex);
+		if (data->someone_died)
+		{
+			pthread_mutex_unlock(&data->dead_mutex);
+			break ;
+		}
+		pthread_mutex_unlock(&data->dead_mutex);
+	}
+	return ((void *)0);
+}
+
 int	init_philo_struct(t_data *data)
 {
 	int	i;
@@ -125,13 +198,16 @@ int	init_philo_struct(t_data *data)
 	{
 		data->philos[i].id = i + 1;
 		data->philos[i].left_fork = &data->forks[i];
-		data->philos[i].right_fork = (&data->forks[i % data->number_of_philos]);
+		data->philos[i].right_fork = (&data->forks[(i + 1) % data->number_of_philos]);
 		data->philos[i].data = data;
 		data->philos[i].meals_eaten = 0;
 		if (pthread_create(&data->philos[i].threads, NULL, &routine, &data->philos[i]) != 0)
 			return (error_exit("Philo creation failed\n", 23), 0);
 		i++;
 	}
+	if (data->number_of_philos > 1)
+		if (pthread_create(&data->waiter, NULL, &check_death, &data) !=0 )
+			return (error_exit("Waiter creation failed\n", 24), 0);
 	return (1);
 }
 
@@ -143,10 +219,11 @@ static int	philo_join(t_data *data)
 	while (i < data->number_of_philos)
 	{
 		if (pthread_join(data->philos[i].threads, NULL) != 0)
-			return (error_exit("Failed to join threads\n", 24), 0);
+			return (error_exit("Failed to join philos\n", 24), 0);
 		i++;
 	}
-	// pthread_join(data->waiter, NULL);
+	if (pthread_join(data->waiter, NULL) != 0)
+		return (error_exit("Failed to join waiter\n", 28), 0);
 	return (0);
 }
 
