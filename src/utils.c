@@ -14,94 +14,17 @@
 
 void	error_exit(const char *str, int len)
 {
-	write(2, &str, len);
-	write(2, "\n", 2);
+	write(2, str, len);
+	write(2, "\n", 1);
 }
 
-int	check_valid_int(const char *str)
-{
-	int		i;
-	int		sign;
-	long	sum;
-
-	i = 0;
-	sign = 1;
-	sum = 0;
-	while ((str[i] >= 9 && str[i] <= 13) || str[i] == 32)
-		i++;
-	if (str[i] == '+' || str[i] == '-')
-	{
-		if (str[i] == '-')
-			sign = -1;
-		i++;
-	}
-	while (str[i] && str[i] >= 48 && str[i] <= 57)
-	{
-		sum = (sum * 10) + (str[i] - 48);
-		if ((sign == -1 && sum < INT_MIN) || (sign == 0 && sum > INT_MAX))
-			return (0);
-		i++;
-	}
-	return (1);
-}
-
-int	ft_isnum(char *argv)
-{
-	int	i;
-
-	i = 0;
-	while (argv[i])
-	{
-		if (argv[i] == '-' || argv[i] == '+')
-			return (error_exit("Please enter numbers without plus or minus signs", 49), 0);
-		else if (argv[i] < '0' || argv[i] > '9')
-			return (error_exit("Please enter numbers only", 26), 0);
-		else
-			i++;
-	}
-	return (1);
-}
-
-time_t	get_current_time(void)
-{
-	struct timeval	time;
-
-	if (gettimeofday(&time, NULL) == -1)
-		write(2, "gettimeofday() error\n", 22);
-	return (time.tv_sec * 1000 + time.tv_usec / 1000);
-}
-
-int	ft_atoi(const char *str)
-{
-	int		i;
-	int		sign;
-	int		sum;
-
-	i = 0;
-	sign = 1;
-	sum = 0;
-	while ((str[i] >= 9 && str[i] <= 13) || str[i] == 32)
-		i++;
-	if (str[i] == '+' || str[i] == '-')
-	{
-		if (str[i] == '-')
-			sign = -1;
-		i++;
-	}
-	while (str[i] && str[i] >= 48 && str[i] <= 57)
-	{
-		sum = (sum * 10) + (str[i] - 48);
-		i++;
-	}
-	return (sum * sign);
-}
-
-void	clean_up(t_data *data)
+void	success_clean_up(t_data *data)
 {
 	int	i;
 
 	i = 0;
 
+	printf("Haha I did come into success_clean_up\n");
 	if (data->forks)
 	{
 		while (i < data->number_of_philos)
@@ -112,7 +35,62 @@ void	clean_up(t_data *data)
 		free(data->forks);
 		data->forks = NULL;
 	}
+	free(data->philos);
+	data->philos = NULL;
 	pthread_mutex_destroy(&data->print_mutex);
 	pthread_mutex_destroy(&data->dead_mutex);
-	pthread_mutex_destroy(&data->eat_mutex);
+	printf("I finished clean up\n");
+}
+
+void	print_status(t_philo *p, t_status status)
+{
+	pthread_mutex_lock(&p->data->dead_mutex);
+	if (p->data->stop)
+	{
+		pthread_mutex_unlock(&p->data->dead_mutex);
+		return ;
+	}
+	pthread_mutex_unlock(&p->data->dead_mutex);
+	pthread_mutex_lock(&p->data->print_mutex);
+	if (status == DIED)
+		printf(RED"%lld\t%d died\n"RESET, 
+			get_current_time() - p->data->start_time, p->id);
+	if (status == EATING)
+		printf("%lld\t%d is eating\n",
+			get_current_time() - p->data->start_time, p->id);
+	if (status == THINKING)
+		printf("%lld\t%d is thinking\n",
+			get_current_time() - p->data->start_time, p->id);
+	if (status == SLEEPING)
+		printf("%lld\t%d is sleeping\n",
+			get_current_time() - p->data->start_time, p->id);
+	if (status == LEFT_FORK)
+		printf("%lld\t%d has taken a fork\n",
+			get_current_time() - p->data->start_time, p->id);
+	if (status == RIGHT_FORK)
+		printf("%lld\t%d has taken a fork\n",
+			get_current_time() - p->data->start_time, p->id);
+	pthread_mutex_unlock(&p->data->print_mutex);
+}
+
+void	destroy_forks_philos(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	if (data->forks)
+	{
+		while (i < data->number_of_philos)
+		{
+			pthread_mutex_destroy(&data->forks[i]);
+			i++;
+		}
+		free(data->forks);
+		data->forks = NULL;
+	}
+	if (data->philos)
+	{
+		free(data->philos);
+		data->philos = NULL;
+	}
 }
