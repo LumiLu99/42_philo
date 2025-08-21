@@ -6,7 +6,7 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 01:02:37 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/20 16:11:45 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/21 21:32:46 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void *routine(void *arg)
 
 	philo = (t_philo *)arg;
 	data = philo->data;
-	printf("I am philo[%d]\n", philo->id);
+	// printf("I am philo[%d]\n", philo->id);
 	if (data->number_of_philos == 1)
 		return (single_philo(philo));
 	while (1)
@@ -38,37 +38,93 @@ void *routine(void *arg)
 		if (data->stop)
 		{
 			pthread_mutex_unlock(&data->dead_mutex);
-			break ;
+			return (NULL);
 		}
 		pthread_mutex_unlock(&data->dead_mutex);
 		if (!philo->meals_eaten)
-			break ;
-		pthread_mutex_lock(philo->left_fork);
-		if (!print_status(philo, LEFT_FORK))
+			return (NULL);
+		if (philo->id % 2 != 0)
 		{
+			usleep(200);
+			pthread_mutex_lock(philo->right_fork);
+			if (!print_status(philo, RIGHT_FORK))
+			{
+				pthread_mutex_unlock(philo->right_fork);
+				return (NULL);
+			}
+			pthread_mutex_lock(philo->left_fork);
+			if (!print_status(philo, LEFT_FORK))
+			{
+				pthread_mutex_unlock(philo->right_fork);
+				pthread_mutex_unlock(philo->left_fork);
+				return (NULL);
+			}
+			pthread_mutex_lock(&philo->eat_mutex);
+			philo->last_meal_time = get_current_time();
+			pthread_mutex_unlock(&philo->eat_mutex);
+			if (!print_status(philo, EATING))
+			{
+				pthread_mutex_unlock(philo->right_fork);
+				pthread_mutex_unlock(philo->left_fork);
+				return (NULL);
+			}
+			ft_usleep(data->time_to_eat, data);
+			pthread_mutex_lock(&philo->eat_mutex);
+			philo->meals_eaten--;
+			pthread_mutex_unlock(&philo->eat_mutex);
+			if (!print_status(philo, SLEEPING))
+			{
+				pthread_mutex_unlock(philo->right_fork);
+				pthread_mutex_unlock(philo->left_fork);
+				return (NULL);
+			}
 			pthread_mutex_unlock(philo->left_fork);
-			break ;
-		}
-		pthread_mutex_lock(philo->right_fork);
-		if (!print_status(philo, RIGHT_FORK))
-		{
 			pthread_mutex_unlock(philo->right_fork);
-			break ;
+			ft_usleep(data->time_to_sleep, data);
+			if (!print_status(philo, THINKING))
+				return (NULL);
 		}
-		pthread_mutex_lock(&philo->eat_mutex);
-		philo->last_meal_time = get_current_time();
-		pthread_mutex_unlock(&philo->eat_mutex);
-		print_status(philo, EATING);
-		ft_usleep(data->time_to_eat, data);
-		pthread_mutex_lock(&philo->eat_mutex);
-		philo->meals_eaten--;
-		pthread_mutex_unlock(&philo->eat_mutex);
-		print_status(philo, SLEEPING);
-		pthread_mutex_unlock(philo->right_fork);
-		pthread_mutex_unlock(philo->left_fork);
-		ft_usleep(data->time_to_sleep, data);
-		if (!print_status(philo, THINKING))
-			break ;
+		else
+		{
+			pthread_mutex_lock(philo->left_fork);
+			if (!print_status(philo, LEFT_FORK))
+			{
+				pthread_mutex_unlock(philo->left_fork);
+				return (NULL);
+			}
+			pthread_mutex_lock(philo->right_fork);
+			if (!print_status(philo, RIGHT_FORK))
+			{
+				pthread_mutex_unlock(philo->right_fork);
+				pthread_mutex_unlock(philo->left_fork);
+				return (NULL);
+			}
+			pthread_mutex_lock(&philo->eat_mutex);
+			philo->last_meal_time = get_current_time();
+			pthread_mutex_unlock(&philo->eat_mutex);
+			if (!print_status(philo, EATING))
+			{
+				pthread_mutex_unlock(philo->right_fork);
+				pthread_mutex_unlock(philo->left_fork);
+				return (NULL);
+			}
+			ft_usleep(data->time_to_eat, data);
+			pthread_mutex_lock(&philo->eat_mutex);
+			philo->meals_eaten--;
+			pthread_mutex_unlock(&philo->eat_mutex);
+			if (!print_status(philo, SLEEPING))
+			{
+				pthread_mutex_unlock(philo->right_fork);
+				pthread_mutex_unlock(philo->left_fork);
+				return (NULL);
+			}
+			pthread_mutex_unlock(philo->right_fork);
+			pthread_mutex_unlock(philo->left_fork);
+			ft_usleep(data->time_to_sleep, data);
+			if (!print_status(philo, THINKING))
+				return (NULL);
+			usleep(200);
+		}
 	}
 	return (NULL);
 }

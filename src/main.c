@@ -58,26 +58,30 @@ void	*check_death(void *arg)
 	long long	current_time;
 
 	data = (t_data *)arg;
+	// printf("I am waiter\n");
 	while (1)
 	{
 		i = 0;
 		while (i < data->number_of_philos)
 		{
 			current_time = get_current_time();
-			pthread_mutex_lock(&data->dead_mutex); //Why do I need it here let's think Do I really need it?
+			pthread_mutex_lock(&data->dead_mutex);
 			if (current_time - data->philos[i].last_meal_time > data->time_to_die)
 			{
+				pthread_mutex_lock(&data->print_mutex);
+				printf(RED"%lld\t%d died\n"RESET, 
+					get_current_time() - data->start_time, data->philos[i].id);
+				pthread_mutex_unlock(&data->print_mutex);
 				if (!data->stop)
 					data->stop = true;
-				print_status(&data->philos[i], DIED);
 				pthread_mutex_unlock(&data->dead_mutex);
-				break ;
+				return (NULL);
 			}
 			pthread_mutex_unlock(&data->dead_mutex);
 			i++;
 		}
 		if (data->stop)
-			break ;
+			return (NULL);
 		usleep(100);
 	}
 	return (NULL);

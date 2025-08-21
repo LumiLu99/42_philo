@@ -24,7 +24,7 @@ void	clean_up(t_data *data)
 
 	i = 0;
 
-	printf("Haha I did come into success_clean_up\n");
+	// printf("Haha I did come into success_clean_up\n");
 	if (data->forks)
 	{
 		while (i < data->number_of_philos)
@@ -39,7 +39,7 @@ void	clean_up(t_data *data)
 	data->philos = NULL;
 	pthread_mutex_destroy(&data->print_mutex);
 	pthread_mutex_destroy(&data->dead_mutex);
-	printf("I finished clean up\n");
+	// printf("I finished clean up\n");
 }
 
 int	print_status(t_philo *p, t_status status)
@@ -52,9 +52,6 @@ int	print_status(t_philo *p, t_status status)
 	}
 	pthread_mutex_unlock(&p->data->dead_mutex);
 	pthread_mutex_lock(&p->data->print_mutex);
-	if (status == DIED)
-		printf(RED"%lld\t%d died\n"RESET, 
-			get_current_time() - p->data->start_time, p->id);
 	if (status == EATING)
 		printf("%lld\t%d is eating\n",
 			get_current_time() - p->data->start_time, p->id);
