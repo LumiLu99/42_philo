@@ -65,12 +65,18 @@ void	*check_death(void *arg)
 		while (i < data->number_of_philos)
 		{
 			current_time = get_current_time();
+			
+			// Protect read access to last_meal_time with the same mutex used for writing
+			pthread_mutex_lock(&data->philos[i].eat_mutex);
+			long long last_meal = data->philos[i].last_meal_time;
+			pthread_mutex_unlock(&data->philos[i].eat_mutex);
+			
 			pthread_mutex_lock(&data->dead_mutex);
-			if (current_time - data->philos[i].last_meal_time > data->time_to_die)
+			if (current_time - last_meal > data->time_to_die)
 			{
 				pthread_mutex_lock(&data->print_mutex);
-				printf(RED"%lld\t%d died\n"RESET, 
-					get_current_time() - data->start_time, data->philos[i].id);
+				printf(RED"%lld\t%d died\n"RESET,
+					current_time - data->start_time, data->philos[i].id);
 				pthread_mutex_unlock(&data->print_mutex);
 				if (!data->stop)
 					data->stop = true;

@@ -6,7 +6,7 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 00:55:42 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/19 23:00:21 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/22 17:00:08 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,16 @@ long long	get_current_time(void)
 void	ft_usleep(int ms, t_data *data)
 {
 	long long	start_time;
+	bool		stop;
 
 	start_time = get_current_time();
 	while (get_current_time() - start_time < ms)
 	{
 		pthread_mutex_lock(&data->dead_mutex);
-		if (data->stop)
-		{
-			pthread_mutex_unlock(&data->dead_mutex);
-            break ;
-		}
+		stop = data->stop;
 		pthread_mutex_unlock(&data->dead_mutex);
+		if (stop)
+			break ;
 		usleep(200);
 	}
 }
