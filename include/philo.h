@@ -84,7 +84,7 @@ void		clean_up(t_data *data);
 void		ft_usleep(int ms, t_data *data);
 void		*routine(void *arg);
 int			init_data(t_data *data);
-int			someone_died(t_philo *philo);
+void		*someone_died(void *arg);
 int		print_status(t_philo *p, t_status status);
 void		destroy_forks_philos(t_data *data);
 void	*check_death(void *arg);

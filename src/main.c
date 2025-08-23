@@ -56,6 +56,7 @@ void	*check_death(void *arg)
 	t_data	*data;
 	int		i;
 	long long	current_time;
+	long long	last_meal;
 
 	data = (t_data *)arg;
 	// printf("I am waiter\n");
@@ -65,22 +66,19 @@ void	*check_death(void *arg)
 		while (i < data->number_of_philos)
 		{
 			current_time = get_current_time();
-			
-			// Protect read access to last_meal_time with the same mutex used for writing
 			pthread_mutex_lock(&data->philos[i].eat_mutex);
-			long long last_meal = data->philos[i].last_meal_time;
+			last_meal = data->philos[i].last_meal_time;
 			pthread_mutex_unlock(&data->philos[i].eat_mutex);
-			
 			pthread_mutex_lock(&data->dead_mutex);
 			if (current_time - last_meal > data->time_to_die)
 			{
 				pthread_mutex_lock(&data->print_mutex);
-				printf(RED"%lld\t%d died\n"RESET,
-					current_time - data->start_time, data->philos[i].id);
-				pthread_mutex_unlock(&data->print_mutex);
+				// printf(RED"%lld\t%d died\n"RESET,
+				// 	current_time - data->start_time, data->philos[i].id);
 				if (!data->stop)
 					data->stop = true;
 				pthread_mutex_unlock(&data->dead_mutex);
+				pthread_mutex_unlock(&data->print_mutex);
 				return (NULL);
 			}
 			pthread_mutex_unlock(&data->dead_mutex);
@@ -88,7 +86,7 @@ void	*check_death(void *arg)
 		}
 		if (data->stop)
 			return (NULL);
-		usleep(100);
+		ft_usleep(2, data);
 	}
 	return (NULL);
 }

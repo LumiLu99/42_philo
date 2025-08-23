@@ -6,7 +6,7 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 01:02:37 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/22 01:46:34 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/23 22:34:46 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static void	*single_philo(t_philo *philo)
 	pthread_mutex_lock(philo->left_fork);
 	print_status(philo, LEFT_FORK);
 	ft_usleep(philo->data->time_to_die, philo->data);
-	print_status(philo, DIED);
+	printf(RED"%lld\t%d died\n"RESET, get_current_time() - philo->data->start_time, philo->id);
 	pthread_mutex_unlock(philo->left_fork);
 	return (NULL);
 }
@@ -27,13 +27,16 @@ void *routine(void *arg)
 	t_philo	*philo;
 	t_data	*data;
 	bool	stop;
+	pthread_t	waiter;
 
 	philo = (t_philo *)arg;
 	data = philo->data;
 	// printf("I am philo[%d]\n", philo->id);
 	if (data->number_of_philos == 1)
 		return (single_philo(philo));
-	while (1)
+	pthread_create(&waiter, NULL, &someone_died, philo);
+	pthread_join(waiter, NULL);
+	while (!someone_died(philo))
 	{
 		pthread_mutex_lock(&data->dead_mutex);
 		stop = data->stop;
