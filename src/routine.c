@@ -6,11 +6,23 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 01:02:37 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/23 22:34:46 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/24 14:38:48 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
+
+int	stop_check(t_data *data)
+{
+	pthread_mutex_lock(&data->dead_mutex);
+	if (data->stop)
+	{
+		pthread_mutex_unlock(&data->dead_mutex);
+		return (1);
+	}
+	pthread_mutex_unlock(&data->dead_mutex);
+	return (0);
+}
 
 static void	*single_philo(t_philo *philo)
 {
@@ -26,29 +38,16 @@ void *routine(void *arg)
 {
 	t_philo	*philo;
 	t_data	*data;
-	bool	stop;
+	// bool	stop;
 	pthread_t	waiter;
 
 	philo = (t_philo *)arg;
 	data = philo->data;
-	// printf("I am philo[%d]\n", philo->id);
 	if (data->number_of_philos == 1)
 		return (single_philo(philo));
 	pthread_create(&waiter, NULL, &someone_died, philo);
-	pthread_join(waiter, NULL);
-	while (!someone_died(philo))
+	while (!stop_check(data))
 	{
-		pthread_mutex_lock(&data->dead_mutex);
-		stop = data->stop;
-		pthread_mutex_unlock(&data->dead_mutex);
-		if (stop)
-			return (NULL);
-		pthread_mutex_lock(&philo->eat_mutex);
-		if (!philo->meals_eaten)
-		{
-			pthread_mutex_unlock(&philo->eat_mutex);
-			return (NULL);
-		}
 		pthread_mutex_unlock(&philo->eat_mutex);
 		if (philo->id % 2 != 0)
 		{
@@ -57,14 +56,14 @@ void *routine(void *arg)
 			if (!print_status(philo, RIGHT_FORK))
 			{
 				pthread_mutex_unlock(philo->right_fork);
-				return (NULL);
+				break ;
 			}
 			pthread_mutex_lock(philo->left_fork);
 			if (!print_status(philo, LEFT_FORK))
 			{
 				pthread_mutex_unlock(philo->right_fork);
 				pthread_mutex_unlock(philo->left_fork);
-				return (NULL);
+				break ;
 			}
 			pthread_mutex_lock(&philo->eat_mutex);
 			philo->last_meal_time = get_current_time();
@@ -73,7 +72,7 @@ void *routine(void *arg)
 			{
 				pthread_mutex_unlock(philo->right_fork);
 				pthread_mutex_unlock(philo->left_fork);
-				return (NULL);
+				break ;
 			}
 			ft_usleep(data->time_to_eat, data);
 			pthread_mutex_lock(&philo->eat_mutex);
@@ -81,11 +80,13 @@ void *routine(void *arg)
 			pthread_mutex_unlock(&philo->eat_mutex);
 			pthread_mutex_unlock(philo->left_fork);
 			pthread_mutex_unlock(philo->right_fork);
+			if (stop_check(data) || (!philo->meals_eaten))
+				break ;
 			if (!print_status(philo, SLEEPING))
-				return (NULL);
+				break ;
 			ft_usleep(data->time_to_sleep, data);
 			if (!print_status(philo, THINKING))
-				return (NULL);
+				break ;
 		}
 		else
 		{
@@ -93,14 +94,14 @@ void *routine(void *arg)
 			if (!print_status(philo, LEFT_FORK))
 			{
 				pthread_mutex_unlock(philo->left_fork);
-				return (NULL);
+				break ;
 			}
 			pthread_mutex_lock(philo->right_fork);
 			if (!print_status(philo, RIGHT_FORK))
 			{
 				pthread_mutex_unlock(philo->right_fork);
 				pthread_mutex_unlock(philo->left_fork);
-				return (NULL);
+				break ;
 			}
 			pthread_mutex_lock(&philo->eat_mutex);
 			philo->last_meal_time = get_current_time();
@@ -109,7 +110,7 @@ void *routine(void *arg)
 			{
 				pthread_mutex_unlock(philo->right_fork);
 				pthread_mutex_unlock(philo->left_fork);
-				return (NULL);
+				break ;
 			}
 			ft_usleep(data->time_to_eat, data);
 			pthread_mutex_lock(&philo->eat_mutex);
@@ -117,13 +118,16 @@ void *routine(void *arg)
 			pthread_mutex_unlock(&philo->eat_mutex);
 			pthread_mutex_unlock(philo->right_fork);
 			pthread_mutex_unlock(philo->left_fork);
+			if (stop_check(data) || (!philo->meals_eaten))
+				break ;
 			if (!print_status(philo, SLEEPING))
-				return (NULL);
+				break ;
 			ft_usleep(data->time_to_sleep, data);
 			if (!print_status(philo, THINKING))
-				return (NULL);
+				break ;
 			usleep(200);
 		}
 	}
+	pthread_join(waiter, NULL);
 	return (NULL);
 }

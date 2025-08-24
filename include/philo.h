@@ -88,5 +88,6 @@ void		*someone_died(void *arg);
 int		print_status(t_philo *p, t_status status);
 void		destroy_forks_philos(t_data *data);
 void	*check_death(void *arg);
+int	stop_check(t_data *data);
 
 #endif

@@ -35,13 +35,13 @@ static int	start_philo(t_data *data)
 		i++;
 	}
 	i = 0;
-	if (data->number_of_philos > 1)
-	{
-		if (pthread_create(&data->waiter, NULL, &check_death, data) != 0)
-			return(error_exit("Waiter creation failed\n", 24), 0);
-		if (pthread_join(data->waiter, NULL) != 0)
-			return(error_exit("Failed to join waiter\n", 23), 0);
-	}
+	// if (data->number_of_philos > 1)
+	// {
+	// 	if (pthread_create(&data->waiter, NULL, &check_death, data) != 0)
+	// 		return(error_exit("Waiter creation failed\n", 24), 0);
+	// 	if (pthread_join(data->waiter, NULL) != 0)
+	// 		return(error_exit("Failed to join waiter\n", 23), 0);
+	// }
 	while (i < data->number_of_philos)
 	{
 		if (pthread_join(data->philos[i].threads, NULL) != 0)
