@@ -36,8 +36,7 @@ typedef enum s_status
 	SLEEPING,
 	THINKING,
 	DIED,
-	LEFT_FORK,
-	RIGHT_FORK,
+	FORK,
 }	t_status;
 
 typedef struct s_data	t_data;
@@ -88,6 +87,5 @@ void		*someone_died(void *arg);
 int		print_status(t_philo *p, t_status status);
 void		destroy_forks_philos(t_data *data);
 void	*check_death(void *arg);
-int	stop_check(t_data *data);
 
 #endif
