@@ -34,8 +34,17 @@ void	clean_up(t_data *data)
 		free(data->forks);
 		data->forks = NULL;
 	}
-	free(data->philos);
-	data->philos = NULL;
+	i = 0;
+	if (data->philos)
+	{
+		while (i < data->number_of_philos)
+		{
+			pthread_mutex_destroy(&data->philos[i].eat_mutex);
+			i++;
+		}
+		free(data->philos);
+		data->philos = NULL;
+	}
 	pthread_mutex_destroy(&data->print_mutex);
 	pthread_mutex_destroy(&data->stop_mutex);
 }
