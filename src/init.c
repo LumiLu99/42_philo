@@ -6,29 +6,11 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 00:58:06 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/21 21:32:05 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/26 14:47:42 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
-
-// static int fork_index(const pthread_mutex_t *p,
-//                       const pthread_mutex_t *base, int n) {
-//     if (!p || !base) return -1;                  // not wired / not allocated
-//     if (p < base || p >= base + n) return -2;    // out of range
-//     return (int)(p - base);
-// }
-
-// static void debug_dump_forks(t_data *d) {
-//     int n = d->number_of_philos;
-//     for (int i = 0; i < n; i++) {
-//         t_philo *p = &d->philos[i];
-//         int L = fork_index(p->left_fork,  d->forks, n);
-//         int R = fork_index(p->right_fork, d->forks, n);
-//         printf("Philo %d: L=%p[%d]  R=%p[%d]\n",
-//                i+1, (void*)p->left_fork, L, (void*)p->right_fork, R);
-//     }
-// }
 
 int	init_forks(t_data *data)
 {
@@ -66,13 +48,14 @@ static int	init_mutexes(t_data *data)
 		destroy_forks_philos(data);
 		return (error_exit("Init print mutex failed\n", 25), 0);
 	}
-  	if (pthread_mutex_init(&data->dead_mutex, NULL) != 0)
+  	if (pthread_mutex_init(&data->stop_mutex, NULL) != 0)
 	{
 		pthread_mutex_destroy(&data->print_mutex);
 		destroy_forks_philos(data);
 		return (error_exit("Init dead mutex failed\n", 24), 0);
 	}
 	pthread_mutex_init(&data->stop_mutex, NULL);
+	pthread_mutex_init(&data->waiter_mutex, NULL);
 	return (1);
 }
 
@@ -96,7 +79,7 @@ int	init_data(t_data *data)
 	{
 		destroy_forks_philos(data);
 		pthread_mutex_destroy(&data->print_mutex);
-		pthread_mutex_destroy(&data->dead_mutex);
+		pthread_mutex_destroy(&data->stop_mutex);
 		return (0);
 	}
 	return (1);
@@ -130,3 +113,22 @@ int	init_philo_struct(t_data *data)
 	// debug_dump_forks(data);
 	return (1);
 }
+
+// Printing forks
+// static int fork_index(const pthread_mutex_t *p,
+//                       const pthread_mutex_t *base, int n) {
+//     if (!p || !base) return -1;                  // not wired / not allocated
+//     if (p < base || p >= base + n) return -2;    // out of range
+//     return (int)(p - base);
+// }
+
+// static void debug_dump_forks(t_data *d) {
+//     int n = d->number_of_philos;
+//     for (int i = 0; i < n; i++) {
+//         t_philo *p = &d->philos[i];
+//         int L = fork_index(p->left_fork,  d->forks, n);
+//         int R = fork_index(p->right_fork, d->forks, n);
+//         printf("Philo %d: L=%p[%d]  R=%p[%d]\n",
+//                i+1, (void*)p->left_fork, L, (void*)p->right_fork, R);
+//     }
+// }

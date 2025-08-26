@@ -37,19 +37,22 @@ void	clean_up(t_data *data)
 	free(data->philos);
 	data->philos = NULL;
 	pthread_mutex_destroy(&data->print_mutex);
-	pthread_mutex_destroy(&data->dead_mutex);
+	pthread_mutex_destroy(&data->stop_mutex);
 }
 
 int	print_status(t_philo *p, t_status status)
 {
-	pthread_mutex_lock(&p->data->dead_mutex);
-	if (p->data->stop)
-	{
-		pthread_mutex_unlock(&p->data->dead_mutex);
+	bool	stop;
+
+	pthread_mutex_lock(&p->data->stop_mutex);
+	stop = p->data->stop;
+	pthread_mutex_unlock(&p->data->stop_mutex);
+	if (stop)
 		return (0);
-	}
-	pthread_mutex_unlock(&p->data->dead_mutex);
 	pthread_mutex_lock(&p->data->print_mutex);
+	if (status == DIED)
+		printf(RED"%lld\t%d died\n"RESET,
+			get_current_time() - p->data->start_time, p->id);
 	if (status == EATING)
 		printf("%lld\t%d is eating\n",
 			get_current_time() - p->data->start_time, p->id);
