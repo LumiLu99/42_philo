@@ -36,8 +36,7 @@ typedef enum s_status
 	SLEEPING,
 	THINKING,
 	DIED,
-	LEFT_FORK,
-	RIGHT_FORK,
+	FORK,
 }	t_status;
 
 typedef struct s_data	t_data;
@@ -68,8 +67,8 @@ typedef struct s_data
 	t_philo			*philos;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	print_mutex;
-	pthread_mutex_t	dead_mutex;
 	pthread_mutex_t	stop_mutex;
+	pthread_mutex_t	waiter_mutex;
 }	t_data;
 
 // Utils
@@ -84,9 +83,13 @@ void		clean_up(t_data *data);
 void		ft_usleep(int ms, t_data *data);
 void		*routine(void *arg);
 int			init_data(t_data *data);
-int		someone_died(t_philo *philo);
+void	*someone_died(void *arg);
 int		print_status(t_philo *p, t_status status);
 void		destroy_forks_philos(t_data *data);
-void	*check_death(void *arg);
+void	eat_routine(t_philo *philo);
+int philo_eats(t_philo *philo);
+int 	stop_check_and_full(t_philo *philo);
+void	delay_offset(t_philo *philo);
+
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 00:55:42 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/23 21:49:45 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/26 14:14:02 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,9 @@ void	ft_usleep(int ms, t_data *data)
 	start_time = get_current_time();
 	while (get_current_time() - start_time < ms)
 	{
-		pthread_mutex_lock(&data->dead_mutex);
+		pthread_mutex_lock(&data->stop_mutex);
 		stop = data->stop;
-		pthread_mutex_unlock(&data->dead_mutex);
+		pthread_mutex_unlock(&data->stop_mutex);
 		if (stop)
 			break ;
 		usleep(200);

@@ -24,7 +24,6 @@ void	clean_up(t_data *data)
 
 	i = 0;
 
-	// printf("Haha I did come into success_clean_up\n");
 	if (data->forks)
 	{
 		while (i < data->number_of_philos)
@@ -35,23 +34,34 @@ void	clean_up(t_data *data)
 		free(data->forks);
 		data->forks = NULL;
 	}
-	free(data->philos);
-	data->philos = NULL;
+	i = 0;
+	if (data->philos)
+	{
+		while (i < data->number_of_philos)
+		{
+			pthread_mutex_destroy(&data->philos[i].eat_mutex);
+			i++;
+		}
+		free(data->philos);
+		data->philos = NULL;
+	}
 	pthread_mutex_destroy(&data->print_mutex);
-	pthread_mutex_destroy(&data->dead_mutex);
-	// printf("I finished clean up\n");
+	pthread_mutex_destroy(&data->stop_mutex);
 }
 
 int	print_status(t_philo *p, t_status status)
 {
-	pthread_mutex_lock(&p->data->dead_mutex);
-	if (p->data->stop)
-	{
-		pthread_mutex_unlock(&p->data->dead_mutex);
+	bool	stop;
+
+	pthread_mutex_lock(&p->data->stop_mutex);
+	stop = p->data->stop;
+	pthread_mutex_unlock(&p->data->stop_mutex);
+	if (stop)
 		return (0);
-	}
-	pthread_mutex_unlock(&p->data->dead_mutex);
 	pthread_mutex_lock(&p->data->print_mutex);
+	if (status == DIED)
+		printf(RED"%lld\t%d died\n"RESET,
+			get_current_time() - p->data->start_time, p->id);
 	if (status == EATING)
 		printf("%lld\t%d is eating\n",
 			get_current_time() - p->data->start_time, p->id);
@@ -61,10 +71,7 @@ int	print_status(t_philo *p, t_status status)
 	if (status == SLEEPING)
 		printf("%lld\t%d is sleeping\n",
 			get_current_time() - p->data->start_time, p->id);
-	if (status == LEFT_FORK)
-		printf("%lld\t%d has taken a fork\n",
-			get_current_time() - p->data->start_time, p->id);
-	if (status == RIGHT_FORK)
+	if (status == FORK)
 		printf("%lld\t%d has taken a fork\n",
 			get_current_time() - p->data->start_time, p->id);
 	pthread_mutex_unlock(&p->data->print_mutex);
