@@ -72,13 +72,13 @@ void	*check_death(void *arg)
 			pthread_mutex_lock(&data->dead_mutex);
 			if (current_time - last_meal > data->time_to_die)
 			{
-				pthread_mutex_lock(&data->print_mutex);
+				// pthread_mutex_lock(&data->print_mutex);
 				// printf(RED"%lld\t%d died\n"RESET,
 				// 	current_time - data->start_time, data->philos[i].id);
 				if (!data->stop)
 					data->stop = true;
 				pthread_mutex_unlock(&data->dead_mutex);
-				pthread_mutex_unlock(&data->print_mutex);
+				// pthread_mutex_unlock(&data->print_mutex);
 				return (NULL);
 			}
 			pthread_mutex_unlock(&data->dead_mutex);

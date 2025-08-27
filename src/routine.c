@@ -26,23 +26,23 @@ void *routine(void *arg)
 {
 	t_philo	*philo;
 	t_data	*data;
-	bool	stop;
-	pthread_t	waiter;
+	// bool	stop;
+	// pthread_t	waiter;
 
 	philo = (t_philo *)arg;
 	data = philo->data;
 	// printf("I am philo[%d]\n", philo->id);
 	if (data->number_of_philos == 1)
 		return (single_philo(philo));
-	pthread_create(&waiter, NULL, &someone_died, philo);
-	pthread_join(waiter, NULL);
+	// pthread_create(&waiter, NULL, &someone_died, philo);
+	// pthread_join(waiter, NULL);
 	while (!someone_died(philo))
 	{
-		pthread_mutex_lock(&data->dead_mutex);
-		stop = data->stop;
-		pthread_mutex_unlock(&data->dead_mutex);
-		if (stop)
-			return (NULL);
+		// pthread_mutex_lock(&data->dead_mutex);
+		// stop = data->stop;
+		// pthread_mutex_unlock(&data->dead_mutex);
+		// if (stop)
+		// 	return (NULL);
 		pthread_mutex_lock(&philo->eat_mutex);
 		if (!philo->meals_eaten)
 		{

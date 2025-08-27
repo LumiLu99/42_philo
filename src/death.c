@@ -12,30 +12,29 @@
 
 #include "../include/philo.h"
 
-void	*someone_died(void *arg)
+int	someone_died(t_philo *philo)
 {
-	t_philo		*philo;
-	t_data		*data;
 	long long	current_time;
 	long long	last_meal;
+	bool		stop;
 
-	philo = (t_philo *)arg;
-	data = philo->data;
 	current_time = get_current_time();
-	pthread_mutex_lock(&data->dead_mutex);
+	pthread_mutex_lock(&philo->data->dead_mutex);
 	last_meal = philo->last_meal_time;
-	pthread_mutex_unlock(&data->dead_mutex);
-	if (current_time - last_meal > data->time_to_die)
+	stop = philo->data->stop;
+	pthread_mutex_unlock(&philo->data->dead_mutex);
+	if (stop)
+		return (1);
+	else if (current_time - last_meal > philo->data->time_to_die)
 	{
-		pthread_mutex_lock(&data->dead_mutex);
-		if (!data->stop)
-			data->stop = true;
-		pthread_mutex_unlock(&data->dead_mutex);
-		printf(RED"%lld\t%d died\n"RESET, current_time - data->start_time, philo->id);
-		return (NULL);
+		pthread_mutex_lock(&philo->data->dead_mutex);
+		if (!philo->data->stop)
+			philo->data->stop = true;
+		pthread_mutex_unlock(&philo->data->dead_mutex);
+		pthread_mutex_lock(&philo->data->print_mutex);
+		printf(RED"%lld\t%d died\n"RESET, current_time - philo->data->start_time, philo->id);
+		pthread_mutex_unlock(&philo->data->print_mutex);
+		return (1);
 	}
-	if (data->stop)
-		return (NULL);
-	else
-		return (NULL);
+	return (0);
 }
