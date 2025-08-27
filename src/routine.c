@@ -6,11 +6,20 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 01:02:37 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/27 16:48:24 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/28 00:24:16 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
+
+// static inline void smart_think(t_philo *p) 
+// {
+//     int budget = p->data->time_to_die - p->data->time_to_eat - p->data->time_to_sleep;
+//     if (budget > 0)
+//         ft_usleep(budget / 2, p->data);  // e.g. 800-200-200=400 -> think ~200ms
+//     else
+//         ft_usleep(1, p->data);
+// }
 
 static inline void	lock_two(pthread_mutex_t *left, pthread_mutex_t *right)
 {
@@ -114,19 +123,19 @@ void *routine(void *arg)
 	while (get_current_time() < data->start_time)
 		ft_usleep(1, data);
 	if (philo->id % 2 == 0)
-		ft_usleep(philo->data->time_to_eat / 2, data);
+		ft_usleep(philo->data->time_to_eat / 5, data);
 	pthread_create(&waiter, NULL, &someone_died, philo);
 	while (!stop_check_and_full(philo))
 	{
 		eat_routine(philo);
 		if (stop_check_and_full(philo))
 			break ;
-		if (!print_status(philo, SLEEPING))
-			break ;
+		print_status(philo, SLEEPING);
+			// break ;
 		ft_usleep(philo->data->time_to_sleep, data);
-		if (!print_status(philo, THINKING))
-			break ;
-		ft_usleep(1, philo->data);
+		print_status(philo, THINKING);
+			// break ;
+		ft_usleep(1, data);
 	}
 	if (pthread_join(waiter, NULL) != 0)
 		printf("Waiter thread join error\n");
@@ -148,28 +157,6 @@ void	eat_routine(t_philo *philo)
 	}
 	ft_usleep(philo->data->time_to_eat, philo->data);
 	unlock_two(left, right);
-	// if (philo->id % 2 == 0)
-	// {
-	// 	pthread_mutex_lock(philo->left_fork);
-	// 	pthread_mutex_lock(philo->right_fork);
-	// }
-	// else
-	// {
-	// 	pthread_mutex_lock(philo->right_fork);
-	// 	pthread_mutex_lock(philo->left_fork);
-	// }
-	// if (!philo_eats(philo))
-	// 	return ;
-	// if (philo->id %2 == 0)
-	// {
-	// 	pthread_mutex_unlock(philo->right_fork);
-	// 	pthread_mutex_unlock(philo->left_fork);
-	// }
-	// else
-	// {
-	// 	pthread_mutex_unlock(philo->left_fork);
-	// 	pthread_mutex_unlock(philo->right_fork);
-	// }
 }
 
 int philo_eats(t_philo *philo)
