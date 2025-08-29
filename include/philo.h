@@ -64,32 +64,43 @@ typedef struct s_data
 	long long		start_time;
 	bool			stop;
 	pthread_t		waiter;
+	int				winner;
 	t_philo			*philos;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	stop_mutex;
-	pthread_mutex_t	waiter_mutex;
 }	t_data;
 
-// Utils
-void		error_exit(const char *str, int len);
+// Parsing
 int			check_valid_int(const char *str);
 int			ft_isnum(char *argv);
 int			check_input(t_data *data, char **argv);
 int			ft_atoi(const char *str);
+
+// Time
 long long	get_current_time(void);
-int			init_philo_struct(t_data *data);
-void		clean_up(t_data *data);
 void		ft_usleep(int ms, t_data *data);
+
+// Philo
 void		*routine(void *arg);
 int			init_data(t_data *data);
-void	*someone_died(void *arg);
-int		print_status(t_philo *p, t_status status);
-void		destroy_forks_philos(t_data *data);
-void	eat_routine(t_philo *philo);
-int philo_eats(t_philo *philo);
-int 	stop_check_and_full(t_philo *philo);
-void	delay_offset(t_philo *philo);
+void		eat_routine(t_philo *philo);
+int			philo_eats(t_philo *philo);
+int			init_philo_struct(t_data *data);
+void		lock_two(pthread_mutex_t *left, pthread_mutex_t *right);
+void		unlock_two(pthread_mutex_t *left, pthread_mutex_t *right);
 
+// Waiter thread
+int			stop_check_and_full(t_philo *philo);
+void		*someone_died(void *arg);
+
+// Free
+void		clean_up(t_data *data);
+void		destroy_forks_philos(t_data *data);
+
+// Utils
+int			print_status(t_philo *p, t_status status);
+void		error_exit(const char *str, int len);
+int			get_stop(t_data *data);
 
 #endif

@@ -41,7 +41,8 @@ SRC = $(addprefix $(SRC_DIR)/, \
 		death.c \
 		init.c \
 		parsing.c \
-		routine.c \
+		philo_routine.c \
+		philo_actions.c	\
 		time.c)
 
 # Object files

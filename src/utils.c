@@ -22,26 +22,19 @@ void	clean_up(t_data *data)
 {
 	int	i;
 
-	i = 0;
-
+	i = -1;
 	if (data->forks)
 	{
-		while (i < data->number_of_philos)
-		{
+		while (++i < data->number_of_philos)
 			pthread_mutex_destroy(&data->forks[i]);
-			i++;
-		}
 		free(data->forks);
 		data->forks = NULL;
 	}
-	i = 0;
+	i = -1;
 	if (data->philos)
 	{
-		while (i < data->number_of_philos)
-		{
+		while (++i < data->number_of_philos)
 			pthread_mutex_destroy(&data->philos[i].eat_mutex);
-			i++;
-		}
 		free(data->philos);
 		data->philos = NULL;
 	}
@@ -59,9 +52,6 @@ int	print_status(t_philo *p, t_status status)
 	if (stop)
 		return (0);
 	pthread_mutex_lock(&p->data->print_mutex);
-	if (status == DIED)
-		printf(RED"%lld\t%d died\n"RESET,
-			get_current_time() - p->data->start_time, p->id);
 	if (status == EATING)
 		printf("%lld\t%d is eating\n",
 			get_current_time() - p->data->start_time, p->id);
@@ -98,4 +88,14 @@ void	destroy_forks_philos(t_data *data)
 		free(data->philos);
 		data->philos = NULL;
 	}
+}
+
+int	get_stop(t_data *data)
+{
+	bool	stop;
+
+	pthread_mutex_lock(&data->stop_mutex);
+	stop = data->stop;
+	pthread_mutex_unlock(&data->stop_mutex);
+	return (stop);
 }

@@ -17,30 +17,25 @@ static int	start_philo(t_data *data)
 	int	i;
 	int	j;
 
-	j = 0;
-	i = 0;
+	j = -1;
+	i = -1;
 	data->start_time = get_current_time() + 50;
-	// data->start_time = get_current_time() + (long long)(data->number_of_philos * 20);
-	while (i < data->number_of_philos)
+	while (++i < data->number_of_philos)
 	{
 		data->philos[i].last_meal_time = data->start_time;
-		if (pthread_create(&data->philos[i].threads, NULL, &routine, &data->philos[i]) != 0)
+		if (pthread_create(&data->philos[i].threads,
+			NULL, &routine, &data->philos[i]) != 0)
 		{
-			while (j < i)
-			{
+			while (++j < i)
 				pthread_join(data->philos[j].threads, NULL);
-				j++;
-			}
 			return (error_exit("Philos creation failed\n", 24), 0);
 		}
-		i++;
 	}
-	i = 0;
-	while (i < data->number_of_philos)
+	i = -1;
+	while (++i < data->number_of_philos)
 	{
 		if (pthread_join(data->philos[i].threads, NULL) != 0)
 			return (error_exit("Failed to join philos\n", 24), 0);
-		i++;
 	}
 	return (1);
 }
@@ -67,12 +62,13 @@ int	main(int argc, char **argv)
 // 800 — The time a philosopher will die if he doesn’t eat
 // 200 — The time it takes a philosopher to eat
 // 200 — The time it takes a philosopher to sleep
-// 7 — Number of times all the philosophers need to eat before terminating the program **
+// 7 — Number of times all the philosophers 
+// need to eat before terminating the program **
 //
 //
 //
 // Old function for one global waiter thread
-// =============================================================
+// ==============================================
 // void	*check_death(void *arg)
 // {
 // 	t_data	*data;
@@ -112,4 +108,24 @@ int	main(int argc, char **argv)
 // 	}
 // 	return (NULL);
 // }
+//
+// =====================================================
+//
+// For printing forks' address
+// static int fork_index(const pthread_mutex_t *p,
+//                       const pthread_mutex_t *base, int n) {
+//     if (!p || !base) return -1;                
+//     if (p < base || p >= base + n) return -2;
+//     return (int)(p - base);
+// }
 
+// static void debug_dump_forks(t_data *d) {
+//     int n = d->number_of_philos;
+//     for (int i = 0; i < n; i++) {
+//         t_philo *p = &d->philos[i];
+//         int L = fork_index(p->left_fork,  d->forks, n);
+//         int R = fork_index(p->right_fork, d->forks, n);
+//         printf("Philo %d: L=%p[%d]  R=%p[%d]\n",
+//                i+1, (void*)p->left_fork, L, (void*)p->right_fork, R);
+//     }
+// }
