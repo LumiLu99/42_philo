@@ -6,7 +6,7 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 01:02:37 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/29 17:09:10 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/29 17:11:57 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,15 @@ static void	*single_philo(t_philo *philo)
 	pthread_mutex_unlock(&philo->data->print_mutex);
 	pthread_mutex_unlock(philo->left_fork);
 	return (NULL);
+}
+
+static int	sleep_and_think(t_philo *philo, t_data *data)
+{
+	if (!print_status(philo, SLEEPING))
+		return ;
+	ft_usleep(philo->data->time_to_sleep, data);
+	if (!print_status(philo, THINKING))
+		return ;
 }
 
 void	*routine(void *arg)
@@ -43,14 +52,11 @@ void	*routine(void *arg)
 		eat_routine(philo);
 		if (stop_check_and_full(philo))
 			break ;
-		if (!print_status(philo, SLEEPING))
-			break ;
-		ft_usleep(philo->data->time_to_sleep, data);
-		if (!print_status(philo, THINKING))
+		if (!sleep_and_think(philo, data))
 			break ;
 		ft_usleep(1, data);
 	}
 	if (pthread_join(waiter, NULL) != 0)
-		printf("Waiter thread join error\n");
+		return (error_exit("Failed to join waiter\n", 23), NULL);
 	return (NULL);
 }
