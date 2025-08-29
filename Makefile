@@ -31,7 +31,7 @@ INC = -I$(INC_DIR)
 
 # Compiler & flags
 CC = clang
-CFLAGS = -Wall -Werror -Wextra -g1 -fsanitize=thread
+CFLAGS = -Wall -Werror -Wextra
 RM = rm -rf
 
 # Source files

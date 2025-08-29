@@ -6,7 +6,7 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 01:02:37 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/28 00:24:16 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/29 13:41:32 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,11 +130,11 @@ void *routine(void *arg)
 		eat_routine(philo);
 		if (stop_check_and_full(philo))
 			break ;
-		print_status(philo, SLEEPING);
-			// break ;
+		if (!print_status(philo, SLEEPING))
+			break ;
 		ft_usleep(philo->data->time_to_sleep, data);
-		print_status(philo, THINKING);
-			// break ;
+		if (!print_status(philo, THINKING))
+			break ;
 		ft_usleep(1, data);
 	}
 	if (pthread_join(waiter, NULL) != 0)
