@@ -6,7 +6,7 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 01:02:37 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/29 15:48:38 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/29 17:09:10 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,6 @@ void	*routine(void *arg)
 		return (single_philo(philo));
 	while (get_current_time() < data->start_time)
 		ft_usleep(1, data);
-	// if (philo->id % 2 == 0)
-	// 	ft_usleep(philo->data->time_to_eat / 5, data);
 	pthread_create(&waiter, NULL, &someone_died, philo);
 	while (!stop_check_and_full(philo))
 	{
