@@ -6,7 +6,7 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 01:02:37 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/29 15:48:38 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/29 16:49:07 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,15 @@ static void	*single_philo(t_philo *philo)
 	return (NULL);
 }
 
+static int	sleep_and_think(t_philo *philo, t_data *data)
+{
+	if (!print_status(philo, SLEEPING))
+		return ;
+	ft_usleep(philo->data->time_to_sleep, data);
+	if (!print_status(philo, THINKING))
+		return ;
+}
+
 void	*routine(void *arg)
 {
 	t_philo		*philo;
@@ -37,22 +46,17 @@ void	*routine(void *arg)
 		return (single_philo(philo));
 	while (get_current_time() < data->start_time)
 		ft_usleep(1, data);
-	// if (philo->id % 2 == 0)
-	// 	ft_usleep(philo->data->time_to_eat / 5, data);
 	pthread_create(&waiter, NULL, &someone_died, philo);
 	while (!stop_check_and_full(philo))
 	{
 		eat_routine(philo);
 		if (stop_check_and_full(philo))
 			break ;
-		if (!print_status(philo, SLEEPING))
-			break ;
-		ft_usleep(philo->data->time_to_sleep, data);
-		if (!print_status(philo, THINKING))
+		if (!sleep_and_think(philo, data))
 			break ;
 		ft_usleep(1, data);
 	}
 	if (pthread_join(waiter, NULL) != 0)
-		printf("Waiter thread join error\n");
+		return (error_exit("Failed to join waiter\n", 23), NULL);
 	return (NULL);
 }
