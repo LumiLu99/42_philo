@@ -6,7 +6,7 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 00:54:18 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/18 19:48:06 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/29 14:59:30 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,10 @@ static int	init_user_input(t_data *data, char **argv)
 	data->time_to_die = ft_atoi(argv[2]);
 	data->time_to_eat = ft_atoi(argv[3]);
 	data->time_to_sleep = ft_atoi(argv[4]);
-    data->stop = false;
-	if (data->number_of_philos <= 0 || data->time_to_die <= 0 || 
-		data->time_to_eat <= 0 || data->time_to_sleep <= 0)
+	data->stop = false;
+	data->winner = 0;
+	if (data->number_of_philos <= 0 || data->time_to_die <= 0
+		|| data->time_to_eat <= 0 || data->time_to_sleep <= 0)
 		return (error_exit("All arguments must be positive numbers", 39), 0);
 	if (argv[5])
 	{
@@ -36,8 +37,8 @@ static int	init_user_input(t_data *data, char **argv)
 
 int	check_valid_int(const char *str)
 {
-	int		i;
-	int		sign;
+	int			i;
+	int			sign;
 	long long	sum;
 	long long	result;
 
@@ -71,7 +72,7 @@ int	ft_isnum(char *argv)
 	while (argv[i])
 	{
 		if (argv[i] == '-' || argv[i] == '+')
-			return (error_exit("Please enter numbers without plus or minus signs", 49), 0);
+			return (error_exit("Please enter numbers without signs", 35), 0);
 		else if (argv[i] < '0' || argv[i] > '9')
 			return (error_exit("Please enter numbers only", 26), 0);
 		else
@@ -115,7 +116,7 @@ int	check_input(t_data *data, char **argv)
 		if (!ft_isnum(argv[i]))
 			return (0);
 		if (!check_valid_int(argv[i]))
-			return (error_exit("Please enter numbers less than INT_MAX", 39), 0);
+			return (error_exit("Please enter num less than INT_MAX", 35), 0);
 	}
 	if (!init_user_input(data, argv))
 		return (0);
