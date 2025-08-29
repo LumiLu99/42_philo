@@ -6,14 +6,16 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 01:02:37 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/29 16:49:07 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/29 17:39:19 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
 
-static void	*single_philo(t_philo *philo)
+static void	*single_philo(t_philo *philo, t_data *data)
 {
+	while (get_current_time() < data->start_time)
+		ft_usleep(1, data);
 	pthread_mutex_lock(philo->left_fork);
 	print_status(philo, FORK);
 	ft_usleep(philo->data->time_to_die, philo->data);
@@ -28,10 +30,11 @@ static void	*single_philo(t_philo *philo)
 static int	sleep_and_think(t_philo *philo, t_data *data)
 {
 	if (!print_status(philo, SLEEPING))
-		return ;
+		return (0);
 	ft_usleep(philo->data->time_to_sleep, data);
 	if (!print_status(philo, THINKING))
-		return ;
+		return (0);
+	return (1);
 }
 
 void	*routine(void *arg)
@@ -43,7 +46,7 @@ void	*routine(void *arg)
 	philo = (t_philo *)arg;
 	data = philo->data;
 	if (data->number_of_philos == 1)
-		return (single_philo(philo));
+		return (single_philo(philo, data));
 	while (get_current_time() < data->start_time)
 		ft_usleep(1, data);
 	pthread_create(&waiter, NULL, &someone_died, philo);
