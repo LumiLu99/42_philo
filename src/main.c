@@ -24,7 +24,7 @@ static int	start_philo(t_data *data)
 	{
 		data->philos[i].last_meal_time = data->start_time;
 		if (pthread_create(&data->philos[i].threads,
-			NULL, &routine, &data->philos[i]) != 0)
+				NULL, &routine, &data->philos[i]) != 0)
 		{
 			while (++j < i)
 				pthread_join(data->philos[j].threads, NULL);
@@ -42,7 +42,7 @@ static int	start_philo(t_data *data)
 
 int	main(int argc, char **argv)
 {
-	t_data data;
+	t_data	data;
 
 	if (argc == 5 || argc == 6)
 	{
