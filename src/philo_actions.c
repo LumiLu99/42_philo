@@ -6,7 +6,7 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/29 15:30:52 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/29 15:46:05 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/29 22:12:41 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	eat_routine(t_philo *philo)
 	unlock_two(left, right);
 }
 
-int philo_eats(t_philo *philo)
+int	philo_eats(t_philo *philo)
 {
 	if (!print_status(philo, FORK))
 		return (0);
