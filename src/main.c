@@ -19,7 +19,7 @@ static int	start_philo(t_data *data)
 
 	j = -1;
 	i = -1;
-	data->start_time = get_current_time() + 50;
+	data->start_time = get_current_time() + (50 * data->number_of_philos);
 	while (++i < data->number_of_philos)
 	{
 		data->philos[i].last_meal_time = data->start_time;

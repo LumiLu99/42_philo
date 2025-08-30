@@ -6,7 +6,7 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 01:02:37 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/29 22:27:06 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/30 20:37:56 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,9 @@ void	*routine(void *arg)
 	if (data->number_of_philos == 1)
 		return (single_philo(philo, data));
 	while (get_current_time() < data->start_time)
-		ft_usleep(1, data);
+		;
+	if (!(philo->id % 2))
+		ft_usleep(data->time_to_eat / 2, data);
 	pthread_create(&waiter, NULL, &someone_died, philo);
 	while (!stop_check_and_full(philo))
 	{
@@ -57,7 +59,7 @@ void	*routine(void *arg)
 			break ;
 		if (!sleep_and_think(philo, data))
 			break ;
-		ft_usleep(1, data);
+		usleep(500);
 	}
 	if (pthread_join(waiter, NULL) != 0)
 		return (error_exit("Failed to join waiter\n", 23), NULL);
