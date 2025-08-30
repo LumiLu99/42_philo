@@ -6,29 +6,11 @@
 /*   By: yelu <yelu@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 00:58:06 by yelu              #+#    #+#             */
-/*   Updated: 2025/08/30 19:59:40 by yelu             ###   ########.fr       */
+/*   Updated: 2025/08/30 20:46:43 by yelu             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
-
-// static int fork_index(const pthread_mutex_t *p,
-//                       const pthread_mutex_t *base, int n) {
-//     if (!p || !base) return -1;                
-//     if (p < base || p >= base + n) return -2;
-//     return (int)(p - base);
-// }
-
-// static void debug_dump_forks(t_data *d) {
-//     int n = d->number_of_philos;
-//     for (int i = 0; i < n; i++) {
-//         t_philo *p = &d->philos[i];
-//         int L = fork_index(p->left_fork,  d->forks, n);
-//         int R = fork_index(p->right_fork, d->forks, n);
-//         printf("Philo %d: L=%p[%d]  R=%p[%d]\n",
-//                i+1, (void*)p->left_fork, L, (void*)p->right_fork, R);
-//     }
-// }
 
 int	init_forks(t_data *data)
 {
@@ -128,6 +110,5 @@ int	init_philo_struct(t_data *data)
 		data->philos[i].meals_eaten = data->num_meals_needed;
 		i++;
 	}
-	// debug_dump_forks(data);
 	return (1);
 }
